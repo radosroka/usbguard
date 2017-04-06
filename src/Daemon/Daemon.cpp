@@ -24,6 +24,7 @@
 #include "IPCPrivate.hpp"
 #include "RulePrivate.hpp"
 #include "RuleParser.hpp"
+#include "Audit.hpp"
 
 #include <sys/select.h>
 #include <sys/time.h>
@@ -57,7 +58,8 @@ namespace usbguard
     "InsertedDevicePolicy",
     "RestoreControllerDeviceState",
     "DeviceManagerBackend",
-    "IPCAccessControlFiles"
+    "IPCAccessControlFiles",
+    "AuditFilePath"
   };
 
   static const std::vector<std::pair<String,Daemon::DevicePolicyMethod> > device_policy_method_strings = {
@@ -177,7 +179,7 @@ namespace usbguard
       USBGUARD_LOG(Debug) << "Setting IPCAllowedUsers to { " << users_value << " }";
 
       for (auto const& user : users) {
-	addIPCAllowedUser(user);
+        addIPCAllowedUser(user);
       }
     }
 
@@ -189,7 +191,7 @@ namespace usbguard
       USBGUARD_LOG(Debug) << "Setting IPCAllowedGroups to { " << groups_value << " }";
 
       for (auto const& group : groups) {
-	addIPCAllowedGroup(group);
+        addIPCAllowedGroup(group);
       }
     }
 
@@ -236,6 +238,13 @@ namespace usbguard
     if (_config.hasSettingValue("IPCAccessControlFiles")) {
       const String value = _config.getSettingValue("IPCAccessControlFiles");
       loadIPCAccessControlFiles(value);
+    }
+
+    /* AuditFilePath */
+    if (_config.hasSettingValue("AuditFilePath")) {
+      const String value = _config.getSettingValue("AuditFilePath");
+      USBGUARD_LOG(Debug) << "Setting AuditFilePath to " << value;
+      USBGUARD_LOGGER.setAuditFile(true, value);
     }
 
     USBGUARD_LOG(Info) << "Configuration loaded successfully.";
@@ -520,6 +529,8 @@ namespace usbguard
     USBGUARD_LOG(Trace) << "event=" << DeviceManager::eventTypeToString(event)
                         << " device_ptr=" << device.get();
 
+    Audit::deviceEvent(_audit_identity, device, event);
+
     Pointer<const Rule> device_rule = \
       device->getDeviceRule(/*with_port*/true,
                             /*with_parent_hash=*/true);
@@ -575,6 +586,8 @@ namespace usbguard
       else {
         USBGUARD_LOG(Debug) << "Implicit rule matched";
       }
+
+      Audit::policyEvent(_audit_identity, device, target_old, device_post->getTarget());
 
       Pointer<const Rule> device_rule = \
         device_post->getDeviceRule(/*with_port=*/true,

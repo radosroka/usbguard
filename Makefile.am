@@ -255,7 +255,10 @@ libusbguard_la_SOURCES=\
 	src/Library/UEventDeviceManager.cpp \
 	src/Library/SysFSDevice.hpp \
 	src/Library/SysFSDevice.cpp \
-	src/Library/USBGuard.cpp
+	src/Library/USBGuard.cpp \
+	src/Library/Policy.cpp \
+	src/Library/Audit.cpp \
+	src/Library/Audit.hpp
 
 pkginclude_HEADERS=\
 	src/Library/ConfigFile.hpp \
@@ -273,7 +276,9 @@ pkginclude_HEADERS=\
 	src/Library/Predicates.hpp \
 	src/Library/Utility.hpp \
 	src/Library/Exception.hpp \
-	src/Library/USBGuard.hpp
+	src/Library/USBGuard.hpp \
+	src/Library/Policy.hpp \
+	src/Library/Audit.hpp
 
 # Workaround for generated protobuf code mishaps
 #```
