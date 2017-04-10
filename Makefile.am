@@ -212,6 +212,8 @@ libusbguard_la_SOURCES=\
 	src/Library/IPCServer.cpp \
 	src/Library/IPCServerPrivate.hpp \
 	src/Library/IPCServerPrivate.cpp \
+	src/Library/NssHandler.cpp \
+	src/Library/NssHandler.hpp \
 	src/Library/USB.cpp \
 	src/Library/Rule.cpp \
 	src/Library/RuleParser.cpp \
@@ -330,7 +332,8 @@ EXTRA_DIST +=\
 
 bin_PROGRAMS=\
 	usbguard \
-	usbguard-rule-parser
+	usbguard-rule-parser \
+	main
 
 usbguard_SOURCES=\
 	src/CLI/usbguard.cpp \
@@ -391,6 +394,21 @@ usbguard_rule_parser_CPPFLAGS=\
 
 usbguard_rule_parser_LDADD=\
 	$(top_builddir)/libusbguard.la
+
+main_CPPFLAGS=\
+	-fPIE \
+	$(AM_CPPFLAGS) \
+	-I$(top_srcdir)/src/CLI
+
+
+main_SOURCES=\
+	src/Library/main.cpp
+
+main_LDADD=\
+	$(top_builddir)/libusbguard.la
+
+main_LDFLAGS= -static
+	
 
 #
 # DBus Bridge
