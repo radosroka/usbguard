@@ -5,12 +5,9 @@ using namespace usbguard;
 
 int main(int argc, char const *argv[])
 {
-	NssHandler::getNSS();
-	NssHandler::getNSS();
-	NssHandler::getNSS();
-	NssHandler::getNSS();
-	NssHandler::getNSS();
+	auto x = NssHandler();
+	x.parseNSSwitch();
 
-//	std::cout << nss.possible_values[nss.result] << std::endl;
+	std::cout << x._possible_values[static_cast<unsigned>(x._result)] << std::endl;
 	return 0;
 }

@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
+#include <vector>
 
-#define NUM_VALUES 3
+#include "Policy.hpp"
 
 namespace usbguard {
 	class NssHandler
@@ -9,25 +10,20 @@ namespace usbguard {
 	public:
 		NssHandler();
 		~NssHandler();
-		static NssHandler & getNSS();
 		void getRuleset();
-
-	private:
-
-		enum Source {
-			files,
-			ldap,
-			sss
-		};
-
-		const std::string prop_name = "usbguard";
-		const std::string nsswitch_path = "/etc/nsswitch.conf";
-
-		const unsigned num_possible_values = NUM_VALUES;
-		const std::string possible_values[NUM_VALUES] = {"files", "ldap", "sss"};
-
-		Source result = files; //default files
-
 		void parseNSSwitch();
+
+		void setNSSwitchPath(const std::string& path);
+		void setPropertyName(const std::string& name);
+
+//	private:
+		std::string _prop_name;
+		std::string _nsswitch_path;
+		unsigned _num_possible_values;
+		std::vector<std::string> _possible_values;
+
+		Policy::SourceType _result; //default files
+
+
 	};
 }

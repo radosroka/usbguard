@@ -40,9 +40,9 @@ namespace usbguard
 
       enum class SourceType
       {
-        Local = 1,
-        Ldap = 2,
-        SSSD = 3
+        Local,
+        Ldap,
+        SSSD
       };
 
       Policy(Interface * const interface_ptr);

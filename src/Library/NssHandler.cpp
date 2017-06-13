@@ -1,34 +1,43 @@
-#include "NssHandler.hpp"
-#include "Exception.hpp"
-
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <string>
 #include <cctype>
 
+#include "NssHandler.hpp"
+#include "Exception.hpp"
+#include "Logger.hpp"
+
 #define MIN_LENGTH 14 //length of "usbguard: sss", shortest possible configuration
+#define NUM_VALUES 3
 
 namespace usbguard {
 
 	NssHandler::NssHandler()
+        :   _prop_name("usbguard"),
+            _nsswitch_path("/etc/nsswitch.conf"),            
+            _possible_values({"files", "ldap", "sss"})
+            
 	{
-
-		this->parseNSSwitch();
+        _num_possible_values = _possible_values.size();
+        _result = Policy::SourceType::Local;
 	}
 
-	NssHandler::~NssHandler()
-	{
+    NssHandler::~NssHandler()
+    {
 
-	}
+    }
 
-	NssHandler & NssHandler::getNSS()
-	{
-		/*if(!NssHandler::nss_handler)
-			NssHandler::nss_handler = new NssHandler();
-		return NssHandler::nss_handler;*/
-		static NssHandler INSTANCE;
-		return INSTANCE;
-	}
+
+    void NssHandler::setNSSwitchPath(const String& path)
+    {
+        _nsswitch_path = path;
+    }
+
+    void NssHandler::setPropertyName(const String& name)
+    {
+        _prop_name = name;
+    }
 
 	void NssHandler::getRuleset()
 	{
@@ -37,11 +46,11 @@ namespace usbguard {
 
 	void NssHandler::parseNSSwitch()
 	{
-		std::ifstream nss(this->nsswitch_path);
+		std::ifstream nss(this->_nsswitch_path);
 		bool found = false;
 
 		if (!nss.is_open()) {
-			throw ErrnoException("NSSwitch parsing", this->nsswitch_path, errno);
+			throw ErrnoException("NSSwitch parsing", this->_nsswitch_path, errno);
     	}
 
     	std::string line;
@@ -53,10 +62,10 @@ namespace usbguard {
 
     		unsigned index = 0;
     		int res = 0;
-    		if((res = line.find(this->prop_name)) < 0)
+    		if((res = line.find(this->_prop_name)) < 0)
     			continue;
     		else {
-    			index = (unsigned)res + this->prop_name.length();
+    			index = (unsigned)res + this->_prop_name.length();
 
     			bool line_end = false;
 
@@ -102,17 +111,17 @@ namespace usbguard {
     				index++;
     			}
 
-    			for(unsigned i = 0 ; i < this->num_possible_values ; i++)
+    			for(unsigned i = 0 ; i < this->_num_possible_values ; i++)
     			{
-    				if(result == this->possible_values[i])
+    				if(result == this->_possible_values[i])
     				{
-    					this->result = static_cast<Source>(i);
+    					this->_result = static_cast<Policy::SourceType>(i);
     					found = true;
     				}
     			}
 
     			if(!found)
-    				std::cout << "Parsed nsswitch.conf property is not supported -- " << "\"" << result << "\"" << std::endl;
+    				USBGUARD_LOG(Info) << "Parsed nsswitch.conf property is not supported -- " << "\"" << result << "\"" << std::endl;
 
     		}
     	}
@@ -123,10 +132,10 @@ namespace usbguard {
 
     	if(found)
     	{
-    		std::cout << "Parsed nsswitch.conf succesfully -- " << "\"" << this->possible_values[result] << "\"" << std::endl;
+    		USBGUARD_LOG(Info) << "Parsed nsswitch.conf succesfully -- " << "\"" << _possible_values[static_cast<unsigned>(_result)] << "\"" << std::endl;
     	}
     	else {
-    		std::cout << "Parsed nsswitch.conf unsuccesfully. Using default -- " << "\"" << this->possible_values[result] << "\"" << std::endl;
+    		USBGUARD_LOG(Info) << "Parsed nsswitch.conf unsuccesfully. Using default -- " << "\"" << _possible_values[static_cast<unsigned>(_result)] << "\"" << std::endl;
     	}
 
 		nss.close();
