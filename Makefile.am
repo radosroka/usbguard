@@ -212,6 +212,8 @@ libusbguard_la_SOURCES=\
 	src/Library/IPCServer.cpp \
 	src/Library/IPCServerPrivate.hpp \
 	src/Library/IPCServerPrivate.cpp \
+	src/Library/NSHandler.cpp \
+        src/Library/NSHandler.hpp \
 	src/Library/USB.cpp \
 	src/Library/Rule.cpp \
 	src/Library/RuleParser.cpp \

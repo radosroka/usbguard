@@ -120,6 +120,9 @@ namespace usbguard
 
   void Daemon::loadConfiguration(const String& path)
   {
+    USBGUARD_LOG(Info) << "Loading NSSwich...";
+    _nss.parseNSSwitch();
+
     USBGUARD_LOG(Info) << "Loading configuration from " << path;
     _config.open(path);
 
